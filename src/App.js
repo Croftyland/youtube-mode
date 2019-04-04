@@ -1,28 +1,59 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, {Component} from 'react';
+import YTSearch from 'youtube-api-search';
+import SearchBar from './components/SearchBar';
+import VideoList from './components/VideoList';
+import VideoDetail from './components/VideoDetail';
+
+const API_KEY = 'AIzaSyCT5YNj0WpEUrt_4K8b3GZ6NoBZTOImXMA';
+
+YTSearch({key: API_KEY, term: 'react'}, function (data) {
+    console.log(data);
+});
 
 class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
-      </div>
-    );
-  }
-}
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            videos: [],
+            selectedVideo: null
+        };
+
+        this.videoSearch('surfboards');
+        this.onVideoSelect = this.onVideoSelect.bind(this)
+    }
+
+
+    videoSearch(term) {
+        YTSearch({key: API_KEY, term: term}, (videos) => {
+            this.setState({
+                videos: videos,
+                selectedVideo: videos[0]
+
+            });
+
+        });
+        console.log(term);
+    }
+
+    onVideoSelect(selectedVideo) {
+        this.setState({selectedVideo})
+    }
+
+
+    render() {
+        return (
+            <div>
+                <SearchBar onSearchTermChange={term => this.videoSearch(term)}/>
+                <VideoDetail video={this.state.selectedVideo}/>
+                <VideoList
+                    videos={this.state.videos}
+                    onVideoSelect={this.onVideoSelect}
+                />
+            </div>
+        );
+    }
+};
 
 export default App;
